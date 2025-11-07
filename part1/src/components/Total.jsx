@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
 
-const Total = ({exercises1, exercises2, exercises3 }) => {
+const Total = ({ part1, part2, part3 }) => {
   return (
     <div>
-        <p>Number of exercies = {exercises1 + exercises2 + exercises3}</p>
+      <p>
+        Number of exercies ={" "}
+        {part1.exercises + part2.exercises + part3.exercises}
+      </p>
     </div>
-  )
-}
+  );
+};
 
-export default Total
+export default Total;
