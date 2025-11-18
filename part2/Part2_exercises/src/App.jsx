@@ -15,7 +15,10 @@ const App = () => {
 
   const handleFormSubmission = (e) => {
     e.preventDefault();
-    if (isDuplicate(newName)) {alert(`${newName} is already in the list`);return;}
+    if (isDuplicate(newName)) {
+      alert(`${newName} is already in the list`);
+      return;
+    }
     setPersons([...persons, { name: newName }]);
     setNewName("");
   };
