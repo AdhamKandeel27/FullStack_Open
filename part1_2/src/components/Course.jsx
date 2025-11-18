@@ -6,8 +6,14 @@ function Course({ course }) {
   console.log(course);
   return (
     <section className="container">
-      <Header course={course} />
-      <Content parts={course.parts} />
+      {course.map((course) => {
+        return (
+          <div key={course.id}>
+            <Header course={course} />
+            <Content parts={course.parts} />
+          </div>
+        );
+      })}
     </section>
   );
 }
