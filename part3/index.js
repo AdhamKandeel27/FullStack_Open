@@ -4,7 +4,7 @@ const app = express();
 
 app.use(express.json());
 
-const persons = [
+let persons = [
   {
     id: "1",
     name: "Arto Hellas",
@@ -46,6 +46,12 @@ app.get("/api/persons/:id", (req, res) => {
     return;
   }
   res.status(200).send(person);
+});
+//DELETE PERSON
+app.delete("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+  persons = persons.filter((person) => person.id !== id);
+  return res.status(204).end();
 });
 
 app.listen(3001, () => {
