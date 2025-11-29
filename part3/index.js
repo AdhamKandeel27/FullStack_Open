@@ -31,6 +31,11 @@ const persons = [
 app.get("/api/persons", (req, res) => {
   res.status(200).send(persons);
 });
+app.get("/info", (req, res) => {
+  const date = new Date();
+  res.send(
+    `<p>Phonebook has info for ${persons.length} people</p> <br> ${date}`);
+});
 
 app.listen(3001, () => {
   console.log("SERVER LISTENING ON PORT 3001");
