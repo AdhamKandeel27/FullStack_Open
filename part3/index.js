@@ -34,7 +34,18 @@ app.get("/api/persons", (req, res) => {
 app.get("/info", (req, res) => {
   const date = new Date();
   res.send(
-    `<p>Phonebook has info for ${persons.length} people</p> <br> ${date}`);
+    `<p>Phonebook has info for ${persons.length} people</p> <br> ${date}`
+  );
+});
+//GET ONE PERSON
+app.get("/api/persons/:id", (req, res) => {
+  const id = req.params.id;
+  const person = persons.find((p) => p.id === id);
+  if (!person) {
+    res.status(404).json({ error: "Person not found" });
+    return;
+  }
+  res.status(200).send(person);
 });
 
 app.listen(3001, () => {
