@@ -1,8 +1,10 @@
 import express from "express";
+import morgan from "morgan";
 
 const app = express();
 
 app.use(express.json());
+app.use(morgan("tiny"));
 
 let persons = [
   {
@@ -26,6 +28,10 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).json({ error: "Unknown Endpoint" });
+};
 
 //GET ALL PERSONS
 app.get("/api/persons", (req, res) => {
@@ -69,6 +75,8 @@ app.delete("/api/persons/:id", (req, res) => {
   persons = persons.filter((person) => person.id !== id);
   return res.status(204).end();
 });
+
+app.use(unknownEndpoint);
 
 app.listen(3001, () => {
   console.log("SERVER LISTENING ON PORT 3001");
