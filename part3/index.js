@@ -47,6 +47,18 @@ app.get("/api/persons/:id", (req, res) => {
   }
   res.status(200).send(person);
 });
+//CREATE PERSON
+app.post("/api/persons", (req, res) => {
+  const body = req.body;
+  const personFound = persons.find((person) => person.id === body.id);
+  if (personFound) {
+    res.status(400).json({ error: `Person ${body.name} already in Phonebook` });
+    return;
+  }
+  persons.push({ id: Math.floor(Math.random() * 10) + 1, ...body });
+  //above is not logical but just for the sake of the exercise
+  res.status(201).send(`Person ${body.name} added !`);
+});
 //DELETE PERSON
 app.delete("/api/persons/:id", (req, res) => {
   const id = req.params.id;
