@@ -50,7 +50,11 @@ app.get("/api/persons/:id", (req, res) => {
 //CREATE PERSON
 app.post("/api/persons", (req, res) => {
   const body = req.body;
-  const personFound = persons.find((person) => person.id === body.id);
+  if (body.name === "" || body.number === "") {
+    res.status(400).json({ error: "Missing required fields" });
+    return;
+  }
+  const personFound = persons.find((person) => person.name === body.name);
   if (personFound) {
     res.status(400).json({ error: `Person ${body.name} already in Phonebook` });
     return;
