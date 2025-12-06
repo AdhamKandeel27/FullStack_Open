@@ -1,103 +1,74 @@
-import { useState , useEffect} from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import Search from "../components/Search";
+import PersonForm from "../components/PersonForm";
+import Persons from "../components/Persons";
 
 const App = () => {
   const [jsonData, setJsonData] = useState([]);
   const [persons, setPersons] = useState([
-    { name: "Arto Hellas", phoneNumber: "0101010101" },
+    { name: "Arto Hellas", number: "040-123456", id: 1 },
+    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
+    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
+    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
   ]);
-  const [newName, setNewName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [filteredPersons, setFilteredPersons] = useState(persons);
 
+  // New state: search query
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch JSON data
   const fetchJsonData = async () => {
-    const promise = axios.get("http://localhost:3001/notes");
-    promise
-      .then((res) => {
-        setJsonData(res.data);
-      })
-      .catch((err) => {
-        console.log("error: ", err);
-      });
+    try {
+      const res = await axios.get("http://localhost:3001/notes");
+      setJsonData(res.data || []);
+    } catch (err) {
+      console.error("error fetching notes:", err);
+    }
   };
 
   useEffect(() => {
     fetchJsonData();
   }, []);
 
+  // Filter persons based on search query
+  const filteredPersons = persons.filter((p) =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleSearchOnChange = (e) => {
-    if (e.target.value === "") {
-      setFilteredPersons(persons);
-      return;
+    setSearchQuery(e.target.value);
+  };
+
+  const addPerson = ({ name, number }) => {
+    if (persons.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+      alert(`${name} is already in the list`);
+      return false;
     }
-    setFilteredPersons(
-      persons.filter((person) => person.name.includes(e.target.value))
-    );
-  };
 
-  const handleNameOnChange = (e) => {
-    setNewName(e.target.value);
-  };
-  const handlePhoneNumberOnChange = (e) => {
-    setPhoneNumber(e.target.value);
-  };
+    const newPerson = { name, number };
+    setPersons((prev) => [...prev, newPerson]);
 
-  const isDuplicate = (name) => {
-    return persons.some((person) => person.name === name);
-    //.some() return true
-  };
-
-  const handleFormSubmission = (e) => {
-    e.preventDefault();
-    if (isDuplicate(newName)) {
-      alert(`${newName} is already in the list`);
-      return;
-    }
-    setPersons([...persons, { name: newName, phoneNumber: phoneNumber }]);
-    setFilteredPersons([
-      ...filteredPersons,
-      { name: newName, phoneNumber: phoneNumber },
-    ]);
-    setNewName("");
-    setPhoneNumber("");
+    return true;
   };
 
   return (
     <div>
       <div className="json-data">
         <ul>
-          {jsonData.map((item) => {
-            return <li key={item.id}>{item.content}</li>;
-          })}
+          {jsonData.map((item) => (
+            <li key={item.id ?? item._id ?? JSON.stringify(item)}>
+              {item.content}
+            </li>
+          ))}
         </ul>
       </div>
-      <div>debug: {newName}</div>
+
       <h2>Phonebook</h2>
-      <input type="text" onChange={handleSearchOnChange} />
-      <form onSubmit={handleFormSubmission}>
-        <h2>add a new</h2>
-        <div>
-          name:
-          <input type="text" value={newName} onChange={handleNameOnChange} />
-        </div>
-        <div>
-          Phone Number:
-          <input
-            type="text"
-            value={phoneNumber}
-            onChange={handlePhoneNumberOnChange}
-          />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <Search handleSearchOnChange={handleSearchOnChange} value={searchQuery} />
+      <PersonForm onAdd={addPerson} />
+
       <h2>Numbers</h2>
-      <ul>
-        {filteredPersons.map((p) => (
-          <li key={p.name}>{p.name + " " + p.phoneNumber}</li>
-        ))}
-      </ul>
+      <Persons filteredPersons={filteredPersons}/>
     </div>
   );
 };
