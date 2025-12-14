@@ -5,9 +5,14 @@ const addPersonService = (newPerson) => {
   return axios.post(baseUrl, newPerson).then((res) => res.data);
 };
 
+const updatePersonNumberService = (id,newNumber) => {
+  return axios.put(`${baseUrl}/${id}`, newNumber).then((res) => res.data);
+};
+
+
 const deletePersonService = (id) => {
   const promiseObject = axios.delete(`${baseUrl}/${id}`);
   return promiseObject.then(response=>response.data);
 };
 
-export { addPersonService, deletePersonService };
+export { addPersonService, deletePersonService, updatePersonNumberService };

@@ -7,11 +7,18 @@ function PersonForm({ onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) return alert("Name is required");
-    const success = onAdd({ name: name.trim(), number: number.trim() });
-    if (success) {
-      setName("");
-      setNumber("");
-    }
+    // onAdd returns a Promise<boolean> — use promise style (.then)
+    onAdd({ name: name.trim(), number: number.trim() })
+      .then((success) => {
+        if (success) {
+          setName("");
+          setNumber("");
+        }
+      })
+      .catch((err) => {
+        // optional: show an error if desired
+        console.error("addPerson failed:", err);
+      });
   };
 
   return (

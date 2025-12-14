@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { addPersonService, deletePersonService } from "./services";
+import { addPersonService, deletePersonService , updatePersonNumberService} from "./services";
 import Search from "../components/Search";
 import PersonForm from "../components/PersonForm";
 import Persons from "../components/Persons";
@@ -45,17 +45,50 @@ const App = () => {
   };
 
   const addPerson = ({ name, number }) => {
-    if (persons.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
-      alert(`${name} is already in the list`);
-      return false;
+    const existing = persons.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existing) {
+      if (existing.number === number) {
+        alert(`${name} is already in the list with the same number`);
+        return Promise.resolve(false);
+      }
+
+      const ok = window.confirm(
+        `${name} is already added to the phonebook. Replace the old number with the new one?`
+      );
+      if (!ok) return Promise.resolve(false);
+
+      // use promise-based flow
+      return updatePersonNumberService(existing.id, { ...existing, number })
+        .then((updated) => {
+          setPersons((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          return true;
+        })
+        .catch((error) => {
+          console.error("failed to update number:", error);
+          if (error?.response?.status === 404) {
+            setPersons((prev) => prev.filter((p) => p.id !== existing.id));
+            alert(`Information of ${name} has already been removed from server`);
+          } else {
+            alert("Failed to update the person's number");
+          }
+          return false;
+        });
     }
 
-    try {
-      const addedPersonPromiseObject = addPersonService({ name, number });
-      addedPersonPromiseObject.then((addedPersonObject) =>
-        setPersons([...persons, addedPersonObject])
-      );
-    } catch (err) {}
+    // Person does not exist: create new (promise chain)
+    return addPersonService({ name, number })
+      .then((saved) => {
+        setPersons((prev) => [...prev, saved]);
+        return true;
+      })
+      .catch((err) => {
+        console.error("failed to save person:", err);
+        alert("Failed to save person to server");
+        return false;
+      });
   };
 
   return (
