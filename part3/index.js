@@ -1,9 +1,17 @@
 import express from "express";
 import morgan from "morgan";
+import cors from 'cors';
+
+
 
 const app = express();
 
+
+
 app.use(express.json());
+app.use(cors()); 
+app.use(express.static('dist'))
+
 
 morgan.token("body", (req) => (req.method === "POST" && req.body ? JSON.stringify(req.body) : ""));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
@@ -58,7 +66,8 @@ app.get("/api/persons/:id", (req, res) => {
 //CREATE PERSON
 app.post("/api/persons", (req, res) => {
   const body = req.body;
-  if (body.name === "" || body.number === "") {
+  // reject missing or empty name/number (covers undefined and empty string)
+  if (!body.name || !body.number) {
     res.status(400).json({ error: "Missing required fields" });
     return;
   }
@@ -67,9 +76,10 @@ app.post("/api/persons", (req, res) => {
     res.status(400).json({ error: `Person ${body.name} already in Phonebook` });
     return;
   }
-  persons.push({ id: Math.floor(Math.random() * 10) + 1, ...body });
-  //above is not logical but just for the sake of the exercise
-  res.status(201).send(`Person ${body.name} added !`);
+  const newPerson = { id: Math.floor(Math.random() * 10) + 1, ...body };
+  persons.push(newPerson);
+  //above is not logical but just for the sake of the exercise 
+  res.status(201).json(newPerson);
 });
 //DELETE PERSON
 app.delete("/api/persons/:id", (req, res) => {
@@ -80,6 +90,7 @@ app.delete("/api/persons/:id", (req, res) => {
 
 app.use(unknownEndpoint);
 
-app.listen(3001, () => {
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
   console.log("SERVER LISTENING ON PORT 3001");
 });

@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { addPersonService, deletePersonService , updatePersonNumberService} from "./services";
+import {
+  addPersonService,
+  deletePersonService,
+  updatePersonNumberService,
+} from "./services";
 import Search from "../components/Search";
 import PersonForm from "../components/PersonForm";
 import Persons from "../components/Persons";
+import Notification from "../components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-
+  const [notificationMessage, setNotificationMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchPersons = () => {
-    const promiseObject = axios.get("http://localhost:3001/persons");
+    const promiseObject = axios.get("http://localhost:3001/api/persons");
     console.log(promiseObject);
     const personsResponsePromiseObject = promiseObject.then((response) => {
       return response.data;
@@ -38,7 +43,11 @@ const App = () => {
     try {
       const promiseObjectResponse = deletePersonService(id);
       console.log("delete Promise Obj Response:", promiseObjectResponse);
-      promiseObjectResponse.then(personResponse=>setPersons(prev=>prev.filter(person=>person.id!==personResponse.id)))
+      promiseObjectResponse.then((personResponse) =>
+        setPersons((prev) =>
+          prev.filter((person) => person.id !== personResponse.id)
+        )
+      );
     } catch (error) {
       alert("something went wrong");
     }
@@ -63,14 +72,19 @@ const App = () => {
       // use promise-based flow
       return updatePersonNumberService(existing.id, { ...existing, number })
         .then((updated) => {
-          setPersons((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          setPersons((prev) =>
+            prev.map((p) => (p.id === updated.id ? updated : p))
+          );
+          setNotificationMessage("ADDED")
           return true;
         })
         .catch((error) => {
           console.error("failed to update number:", error);
           if (error?.response?.status === 404) {
             setPersons((prev) => prev.filter((p) => p.id !== existing.id));
-            alert(`Information of ${name} has already been removed from server`);
+            alert(
+              `Information of ${name} has already been removed from server`
+            );
           } else {
             alert("Failed to update the person's number");
           }
@@ -82,6 +96,7 @@ const App = () => {
     return addPersonService({ name, number })
       .then((saved) => {
         setPersons((prev) => [...prev, saved]);
+        setNotificationMessage("ADDED");
         return true;
       })
       .catch((err) => {
@@ -93,6 +108,7 @@ const App = () => {
 
   return (
     <div>
+      {notificationMessage && <Notification message={notificationMessage}/>}
       <h2>Phonebook</h2>
       <Search handleSearchOnChange={handleSearchOnChange} value={searchQuery} />
       <PersonForm onAdd={addPerson} />
