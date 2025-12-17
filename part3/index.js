@@ -22,14 +22,14 @@ const unknownEndpoint = (req, res) => {
 };
 
 //GET ALL PERSONS
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
   PhoneBook.find({})
     .then((contacts) => {
       res.status(200).send(contacts);
     })
     .catch((error) => next(error));
 });
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
   PhoneBook.countDocuments({})
     .then((count) => {
       const date = new Date();
@@ -101,7 +101,9 @@ app.delete("/api/persons/:id", (req, res, next) => {
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
-    res.status(400).send({ erro: "Invalid Id" });
+    return res.status(400).send({ error: "Invalid Id" });
+  } else if (error.name === "ValidationError") {
+    return res.status(400).send({ error: error.message });
   }
   next(error);
 };

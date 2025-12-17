@@ -12,8 +12,15 @@ import Notification from "../components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
+  const [notificationType, setNotificationType] = useState("success");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const showNotification = (message, type = "success") => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setTimeout(() => setNotificationMessage(null), 4000);
+  };
 
   const fetchPersons = () => {
     const promiseObject = axios.get("http://localhost:3001/api/persons");
@@ -75,7 +82,7 @@ const App = () => {
           setPersons((prev) =>
             prev.map((p) => (p.id === updated.id ? updated : p))
           );
-          setNotificationMessage("ADDED")
+          showNotification("Updated contact", "success");
           return true;
         })
         .catch((error) => {
@@ -86,7 +93,10 @@ const App = () => {
               `Information of ${name} has already been removed from server`
             );
           } else {
-            alert("Failed to update the person's number");
+            const errMsg =
+              error?.response?.data?.error ||
+              "Failed to update the person's number";
+            showNotification(errMsg, "error");
           }
           return false;
         });
@@ -96,19 +106,23 @@ const App = () => {
     return addPersonService({ name, number })
       .then((saved) => {
         setPersons((prev) => [...prev, saved]);
-        setNotificationMessage("ADDED");
+        showNotification("Added to phonebook", "success");
         return true;
       })
       .catch((err) => {
         console.error("failed to save person:", err);
-        alert("Failed to save person to server");
+        const errMsg =
+          err?.response?.data?.error || "Failed to save person to server";
+        showNotification(errMsg, "error");
         return false;
       });
   };
 
   return (
     <div>
-      {notificationMessage && <Notification message={notificationMessage}/>}
+      {notificationMessage && (
+        <Notification message={notificationMessage} type={notificationType} />
+      )}
       <h2>Phonebook</h2>
       <Search handleSearchOnChange={handleSearchOnChange} value={searchQuery} />
       <PersonForm onAdd={addPerson} />
