@@ -36,3 +36,4 @@ describe('favoriteBlogs',()=>{
         assert.strictEqual(listHelper.favoriteBlog(blogs),1000)
     })
 })
+
