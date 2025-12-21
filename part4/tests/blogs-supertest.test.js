@@ -2,8 +2,9 @@ import supertest from "supertest";
 import app from "../app.js";
 import { test, describe, beforeEach, after } from "node:test";
 import Blog from "../models/Blog.js";
-import assert from "node:assert";
+import assert, { Assert } from "node:assert";
 import mongoose from "mongoose";
+import { title } from "node:process";
 
 const api = supertest(app);
 
@@ -81,7 +82,7 @@ describe("Blogs", () => {
       title: "",
       author: "Youssef Hisham",
       url: "https://www.google.com",
-      likes:123
+      likes: 123,
     };
     const postResponse = await api
       .post("/api/blogs")
@@ -95,7 +96,7 @@ describe("Blogs", () => {
     const newBlog = {
       title: "Not missing",
       author: "Youssef Hisham",
-      likes:123
+      likes: 123,
     };
     const postResponse = await api
       .post("/api/blogs")
@@ -105,7 +106,33 @@ describe("Blogs", () => {
     assert.strictEqual(postResponse.body.error, "Missing fields");
   });
 
+  test("delete a blog by Id", async () => {
+    const blogsInitial = await api.get("/api/blogs");
+    const blogToBeDeleted = blogsInitial.body[0];
+    const deletedBlog = await api.delete(`/api/blogs/${blogToBeDeleted.id}`);
+    const blogsEnd = await api.get("/api/blogs");
+    const titles = blogsEnd.body.map((blog) => blog.title);
+    assert(!titles.includes(deletedBlog.body.title));
+    assert.strictEqual(blogsEnd.body.length, blogsInitial.body.length - 1);
+  });
 
+  test("update likes of a blog", async () => {
+    const blogsInitial = await api.get("/api/blogs");
+    const blogToUpdate = blogsInitial.body[0];
+    const newLikes = blogToUpdate.likes + 5;
+
+    const updateResponse = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send({ likes: newLikes })
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+
+    assert.strictEqual(updateResponse.body.likes, newLikes);
+
+    const blogsAfter = await api.get("/api/blogs");
+    const updated = blogsAfter.body.find((b) => b.id === blogToUpdate.id);
+    assert.strictEqual(updated.likes, newLikes);
+  });
 });
 
 after(async () => {
