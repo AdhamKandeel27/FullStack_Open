@@ -2,9 +2,8 @@ import supertest from "supertest";
 import app from "../app.js";
 import { test, describe, beforeEach, after } from "node:test";
 import Blog from "../models/Blog.js";
-import assert, { Assert } from "node:assert";
+import assert from "node:assert";
 import mongoose from "mongoose";
-import { title } from "node:process";
 
 const api = supertest(app);
 
