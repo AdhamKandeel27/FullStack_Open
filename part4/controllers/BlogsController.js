@@ -19,7 +19,11 @@ blogsRouter.get("/", async (req, res) => {
 });
 
 blogsRouter.post("/", async (request, response) => {
-  const decodedToken = jwt.verify(getTokenFrom(request),process.env.JWT_SECRET);
+  const decodedToken = jwt.verify(
+    getTokenFrom(request),
+    process.env.JWT_SECRET
+  );
+  console.log(decodedToken);
   if (!decodedToken) {
     return response.status(401).json({ error: "invalid token" });
   }
@@ -58,14 +62,27 @@ blogsRouter.delete("/:id", async (request, response) => {
 
 blogsRouter.put("/:id", async (request, response) => {
   const body = request.body;
+  const id = request.params.id;
+
   let duplicateBlog = await Blog.findById(request.params.id);
+  console.log("Received ID:", id);
+  console.log("ID type:", typeof id);
+  console.log(duplicateBlog);
   if (!duplicateBlog) {
+    console.log("Blog not found with ID:", id);
+
     response.status(404).json({ error: "Blog Not found" });
     return;
   }
-  duplicateBlog.likes = body.likes;
-  const updatedNote = await duplicateBlog.save();
-  response.send(updatedNote);
+  duplicateBlog.likes = body.likes; // This will be the incremented value from frontend
+  duplicateBlog.user = body.user;
+  duplicateBlog.title = body.title;
+  duplicateBlog.author = body.author;
+  duplicateBlog.url = body.url;
+  const updatedBlogResponse = await duplicateBlog.save();
+  await updatedBlogResponse.populate("user");
+  console.log(updatedBlogResponse)
+  response.status(200).json(updatedBlogResponse);
 });
 
 export default blogsRouter;

@@ -6,10 +6,13 @@ function CreateBlogForm({ createBlog }) {
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
 
-  const handleCreateBlog = (e) => {
+  const handleCreateBlog = async (e) => {
     e.preventDefault();
 
-    createBlog({ title, author, url });
+    await createBlog({ title, author, url });
+    setTitle("");
+    setAuthor("");
+    setUrl("");
   };
   return (
     <>
