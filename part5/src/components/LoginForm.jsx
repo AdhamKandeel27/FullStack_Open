@@ -7,6 +7,7 @@ function LoginForm({handleLogin}) {
   const [password, setPassword] = useState("");
   return (
     <div className="login-form">
+        <h2>Login Form</h2>
       <form onSubmit={(event) => handleLogin(event, username, password)}>
         <label>
           Username

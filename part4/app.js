@@ -5,6 +5,8 @@ import logger from "./utils/logger.js";
 import blogsRouter from "./controllers/BlogsController.js";
 import usersRouter from "./controllers/UserController.js";
 import loginRouter from "./controllers/LoginController.js";
+import "dotenv/config";
+import testsRouter from "./controllers/TestingController.js";
 
 const app = express();
 
@@ -22,6 +24,10 @@ app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/login", loginRouter);
 
+if (process.env.NODE_ENV === "test") {
+  app.use("/api/testing", testsRouter);
+}
+
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
@@ -30,8 +36,8 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400).send({ error: error.message });
   } else if (error.name === "MongoServerError" && error.code === 11000) {
     return res.status(400).send({ error: "username must be unique" });
-  }else if (error.name === "JsonWebTokenError") {
-    return res.status(401).json({ error: 'token invalid' })
+  } else if (error.name === "JsonWebTokenError") {
+    return res.status(401).json({ error: "token invalid" });
   }
 
   next(error);

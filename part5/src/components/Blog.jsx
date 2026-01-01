@@ -11,8 +11,8 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
   };
   console.log(blog);
   return (
-    <div style={blogStyle}>
-      <p>
+    <div style={blogStyle} className="blog">
+      <p className="blog-title-author">
         {blog.title} {blog.author}
         <button
           style={{ display: "inline-block" }}
@@ -24,11 +24,12 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
           {isViewed ? "Hide Details" : "View Details"}
         </button>
       </p>
-      <div style={{ display: isViewed ? "block" : "none" }}>
+      <div className="blog-details" style={{ display: isViewed ? "block" : "none" }}>
         <div className="likes">
           likes: {blog.likes}
           <button onClick={() => handleLike(blog)}>like</button>
         </div>
+        <div className="blog-url">{blog.url}</div>
         {blog.user.name}
       </div>
       <div className="delete-button">

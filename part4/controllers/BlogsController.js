@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import Blog from "../models/Blog.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
@@ -81,7 +81,7 @@ blogsRouter.put("/:id", async (request, response) => {
   duplicateBlog.url = body.url;
   const updatedBlogResponse = await duplicateBlog.save();
   await updatedBlogResponse.populate("user");
-  console.log(updatedBlogResponse)
+  console.log(updatedBlogResponse);
   response.status(200).json(updatedBlogResponse);
 });
 
