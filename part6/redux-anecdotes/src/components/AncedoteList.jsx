@@ -1,14 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { vote, showContent } from "../reducers/anecdoteReducer";
+import { vote, showContent, setAnecdotes } from "../reducers/anecdoteReducer";
 import { showNotification } from "../reducers/notificationReducer";
+import anecdoteService from "../services/anecdoteService.js";
 
 function AncedoteList() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    anecdoteService
+      .getAll()
+      .then((anecdotes) => dispatch(setAnecdotes(anecdotes)));
+  }, [dispatch]);
   const anecdotes = useSelector(({ anecdotes, filter }) => {
     const filteredList = anecdotes.filter((a) => a.content.includes(filter));
     return [...filteredList].sort((a, b) => b.votes - a.votes);
   });
-  const dispatch = useDispatch();
 
   const addVote = (id) => {
     console.log("vote", id);
