@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import { createAnecdote } from "../reducers/anecdoteReducer";
 
 function AncedoteForm() {
   const dispatch = useDispatch();
@@ -7,7 +8,13 @@ function AncedoteForm() {
     e.preventDefault();
     const content = e.target.ancedote.value;
     console.log(content);
-    dispatch({ type: "CREATE", payload: content });
+    dispatch(
+      createAnecdote({
+        content,
+        id: (100000 * Math.random()).toFixed(0),
+        votes: 0,
+      })
+    );
     e.target.ancedote.value = "";
   };
 
