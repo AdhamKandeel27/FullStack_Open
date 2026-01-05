@@ -1,30 +1,28 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { vote, showContent, setAnecdotes } from "../reducers/anecdoteReducer";
-import { showNotification } from "../reducers/notificationReducer";
-import anecdoteService from "../services/anecdoteService.js";
+import {
+  vote,
+  showContent,
+  initializeAnecdotes,
+  incrementVote,
+} from "../reducers/anecdoteReducer";
+import { setNotification } from "../reducers/notificationReducer";
 
 function AncedoteList() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    anecdoteService
-      .getAll()
-      .then((anecdotes) => dispatch(setAnecdotes(anecdotes)));
-  }, [dispatch]);
+    dispatch(initializeAnecdotes());
+  }, []);
   const anecdotes = useSelector(({ anecdotes, filter }) => {
     const filteredList = anecdotes.filter((a) => a.content.includes(filter));
     return [...filteredList].sort((a, b) => b.votes - a.votes);
   });
 
-  const addVote = (id) => {
-    console.log("vote", id);
-    dispatch(vote(id));
-    dispatch(
-      showNotification(
-        `you voted for ${anecdotes.find((a) => a.id === id).content}`
-      )
-    );
+  const addVote = (anecdote) => {
+    console.log("vote", anecdote.id);
+    dispatch(incrementVote(anecdote));
+    dispatch(setNotification(`you voted '${anecdote.content}'`, 2));
   };
   return (
     <div>
@@ -34,7 +32,7 @@ function AncedoteList() {
           <div>{anecdote.content}</div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => addVote(anecdote.id)}>vote</button>
+            <button onClick={() => addVote(anecdote)}>vote</button>
           </div>
         </div>
       ))}

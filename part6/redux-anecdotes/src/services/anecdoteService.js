@@ -23,4 +23,22 @@ const createNew = async (anecdoteBody) => {
   return await response.json();
 };
 
-export default { getAll , createNew };
+const addVote = async (anecdote) => {
+  const updatedAnecdote = {
+    ...anecdote,
+    votes: anecdote.votes + 1,
+  };
+  const options = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedAnecdote),
+  };
+  const response = await fetch(`${baseUrl}/${anecdote.id}`, options);
+  if (!response.ok) {
+    throw new Error("put error");
+  }
+  const data = await response.json();
+  return data;
+};
+
+export default { getAll, createNew, addVote };
